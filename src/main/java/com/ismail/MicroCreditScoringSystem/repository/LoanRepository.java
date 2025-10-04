@@ -7,6 +7,7 @@ import main.java.com.ismail.MicroCreditScoringSystem.model.enums.Decision;
 import main.java.com.ismail.MicroCreditScoringSystem.model.enums.PaymentStatus;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -92,7 +93,7 @@ public class LoanRepository {
                 }
 
                 UUID installmentId = UUID.fromString(rs.getString("installment_id"));
-                java.sql.Date sqlDate = rs.getDate("payment_date");
+                Date sqlDate = rs.getDate("payment_date");
                 LocalDateTime dueDate = sqlDate != null ? sqlDate.toLocalDate().atStartOfDay() : null;
 
                 String statusStr = rs.getString("status");
@@ -114,4 +115,45 @@ public class LoanRepository {
 
         return new ArrayList<>(loanMap.values());
     }
+
+
+    public ArrayList<Loan> getLoansBystatus() {
+        String sql = "select * from Loan";
+        ArrayList<Loan> loans = null;
+        try (Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                    Loan loan = new Loan(
+                            rs.getString("employee_id"),
+                            rs.getString("professional_id"),
+                            rs.getDouble("requested_amount"),
+                            rs.getDouble("amount_granted"),
+                            rs.getDouble("interest_rate"),
+                            rs.getInt("duration_in_months"),
+                            Decision.valueOf(rs.getString("decision"))
+                    );
+                    loan.setId(UUID.fromString(rs.getString("id")));
+                    loan.setInstallments(new ArrayList<>());
+                loans.add( loan);
+                }
+            } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+        return loans;
+    }
+
+    public boolean changeStatusManual(UUID id , Decision newDecision) {
+        String sql = "update Loan set decision = ? where id = ? ";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, newDecision.name());
+            stmt.setObject(2, id);
+            return stmt.executeUpdate() > 0 ;
+        }catch (SQLException e) {
+            System.out.println("sql exeption : "+ e.getMessage());
+        }
+        return false;
+    }
+
+
+
 }
