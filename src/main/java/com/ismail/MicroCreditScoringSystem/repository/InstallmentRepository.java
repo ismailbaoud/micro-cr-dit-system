@@ -106,16 +106,22 @@ public class InstallmentRepository {
 
 
     public boolean payInstallment(UUID installmentId) {
-        String sql = "UPDATE Installment set payment_date = ? where id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)){
-            stmt.setObject(1, LocalDate.now());
+        String sql = "UPDATE Installment SET payment_date = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
             stmt.setObject(2, installmentId);
-            return stmt.executeUpdate() > 0;
-        }catch (SQLException e) {
-            System.out.println("sql Exception : "+ e.getMessage());
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (SQLException e) {
+            System.err.println("SQL Exception: " + e.getMessage());
+            return false;
         }
-        return false;
     }
+
+
 
 
 }
