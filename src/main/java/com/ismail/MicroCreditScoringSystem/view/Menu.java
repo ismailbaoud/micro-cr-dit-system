@@ -10,9 +10,6 @@ public class Menu {
         do {
             System.out.println("1 => Client Management");
             System.out.println("2 => Credit & Score Management");
-            System.out.println("3 => Payment Tracking");
-            System.out.println("4 => Decision Engine");
-            System.out.println("5 => Analytics & Reports");
             System.out.println("0 => Exit");
             System.out.print("Please enter your choice : ");
             choice = scanner.nextInt();
@@ -21,7 +18,7 @@ public class Menu {
                     new ClientView().clientMenu();
                     break;
                 case 2 :
-                    new CreditView().creditMenu();
+                    new LoanView().creditMenu();
                     break;
                 case 3 :
                     new PaymentTrackingMenu().paymentTrackingMenu();
