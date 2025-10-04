@@ -17,7 +17,8 @@ public class MonthlyTask {
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
             Runnable task = () -> {
-                if (LocalDate.now().getDayOfMonth() == 3) {
+                if (LocalDate.now().getDayOfMonth() == 4) {
+
                     loanService.changeStatus();
                 }
             };
