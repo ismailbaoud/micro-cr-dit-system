@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class PersonRepository {
@@ -310,12 +311,17 @@ public class PersonRepository {
         return clients;
     }
 
-    public Boolean updateScoring(Person client, Integer score) {
+    public Boolean updateScoring(Person client, Integer score, String operation) {
         if (client instanceof Employee) {
-            Integer scoreMoin = Math.max(client.getScore() - score, 0);
+            Integer finalScore;
+            if(operation.equals("addition")){
+                finalScore = Math.max(client.getScore() + score, 0);
+            }else {
+                finalScore = Math.max(client.getScore() - score, 0);
+            }
             String empSql = "UPDATE Employee set score = ? where id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(empSql)) {
-                stmt.setInt(1, scoreMoin);
+                stmt.setInt(1, finalScore);
                 stmt.setObject(2, client.getId());
                 return stmt.executeUpdate() >0;
             } catch (SQLException e) {
@@ -335,4 +341,72 @@ public class PersonRepository {
         }
         return false;
     }
+
+    public List<Person> getAllClients() {
+        List<Person> clients = new ArrayList<>();
+
+        String empSql = "SELECT * FROM Employee";
+        try (PreparedStatement stmt = conn.prepareStatement(empSql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Employee emp = new Employee(
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getDate("birth_date").toLocalDate(),
+                        rs.getString("city"),
+                        rs.getBoolean("investment"),
+                        rs.getBoolean("placement"),
+                        rs.getString("marital_status"),
+                        rs.getDouble("salary"),
+                        rs.getInt("seniority_in_years"),
+                        ContractType.valueOf(rs.getString("contract_type")),
+                        EmployeeSector.valueOf(rs.getString("sector")),
+                        "position",
+                        rs.getInt("children_count")
+                );
+                emp.setId(UUID.fromString(rs.getString("id")));
+                emp.setScore(rs.getInt("score"));
+                clients.add(emp);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        String proSql = "SELECT * FROM Professional";
+        try (PreparedStatement stmt = conn.prepareStatement(proSql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Professional pro = new Professional(
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getDate("birth_date").toLocalDate(),
+                        rs.getString("city"),
+                        rs.getBoolean("investment"),
+                        rs.getBoolean("placement"),
+                        rs.getString("marital_status"),
+                        rs.getString("activity"),
+                        ActivitySector.valueOf(rs.getString("activity_sector")),
+                        rs.getString("tax_registration"),
+                        rs.getDouble("income"),
+                        rs.getInt("children_count"),
+                        ContractType.valueOf(rs.getString("contract_type"))
+                );
+                pro.setId(UUID.fromString(rs.getString("id")));
+                pro.setScore(rs.getInt("score"));
+                clients.add(pro);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return clients;
+    }
+
+
+
 }
