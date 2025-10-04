@@ -20,15 +20,6 @@ public class Menu {
                 case 2 :
                     new LoanView().creditMenu();
                     break;
-                case 3 :
-                    new PaymentTrackingMenu().paymentTrackingMenu();
-                    break;
-                case 4 :
-                    new DecisionEngineMenu().DecisionEngineMenu();
-                    break;
-                case 5 :
-                    new AnalyticsMenu().analyticsMenu();
-                    break;
                 case 0 :
                     System.out.println("Good bye !");
                     break;
