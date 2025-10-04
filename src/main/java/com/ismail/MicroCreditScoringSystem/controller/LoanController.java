@@ -1,11 +1,13 @@
 package main.java.com.ismail.MicroCreditScoringSystem.controller;
 
 import main.java.com.ismail.MicroCreditScoringSystem.model.Employee;
+import main.java.com.ismail.MicroCreditScoringSystem.model.Loan;
 import main.java.com.ismail.MicroCreditScoringSystem.model.Person;
 import main.java.com.ismail.MicroCreditScoringSystem.model.Professional;
 import main.java.com.ismail.MicroCreditScoringSystem.model.enums.Decision;
 import main.java.com.ismail.MicroCreditScoringSystem.service.LoanService;
 import main.java.com.ismail.MicroCreditScoringSystem.service.PersonService;
+import main.java.com.ismail.MicroCreditScoringSystem.view.LoanView;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -13,6 +15,7 @@ import java.util.*;
 public class LoanController {
     private final Scanner scanner = new Scanner(System.in);
     private final LoanService loanService = new LoanService();
+    private final LoanView loanView = new LoanView();
     PersonService personService = new PersonService();
     public LoanController(int choice) {
         manageOptions(choice);
@@ -21,7 +24,10 @@ public class LoanController {
     private void manageOptions(int choice) {
         switch (choice) {
             case 1: createLoan(); break;
-            case 2: payLoan(); break;
+            case 2: changeLoanStatus(); break;
+            case 3: displayManualReviewLoans(); break;
+            case 4: displayGeneralStatistics(); break;
+            case 5: payLoan(); break;
             default: System.out.println("Invalid option!");
         }
     }
@@ -29,7 +35,7 @@ public class LoanController {
     public void payLoan() {
         System.out.println("enter the client credit id : ");
         UUID id = UUID.fromString(scanner.next());
-        loanService.CreatePayment(id);
+        loanService.createPayment(id);
     }
     private void createLoan() {
         System.out.print("Please enter the employee ID (or leave empty): ");
@@ -112,5 +118,31 @@ public class LoanController {
         }
 
         return 0.0;
+    }
+
+    public void changeLoanStatus() {
+        System.out.println("Please enter the Loan Id : ");
+        UUID id = UUID.fromString(scanner.next());
+        Loan loan = loanService.getLoin(id);
+        if (loan.getDecision().equals(Decision.IMMEDIATE_APPROVAL)) {
+            System.out.println("this account is accepted");
+        }else if(loan.getDecision().equals(Decision.AUTOMATIC_REJECTION)) {
+            System.out.println("this account is refused");
+        }else if(loan.getDecision().equals(Decision.MANUAL_REVIEW)){
+            System.out.println("enter your decision");
+            System.out.println("1 => IMMEDIATE APPROVAL");
+            System.out.println("2 => REJECTION");
+            Decision choice = scanner.nextInt() == 1 ? Decision.IMMEDIATE_APPROVAL : Decision.AUTOMATIC_REJECTION;
+            loanService.changeStatusManual(id, choice);
+        }
+    }
+
+    public void displayManualReviewLoans() {
+        ArrayList<Loan> loans = loanService.getLoansBystatus();
+        loanView.displayLoans(loans);
+    }
+
+    public void displayGeneralStatistics() {
+        loanService.AverageScore();
     }
 }

@@ -16,7 +16,9 @@ public class CreditView {
         Integer choice;
         do {
             System.out.println("1 => add new credit");
-            System.out.println("2 => pay credit");
+            System.out.println("2 => handle the manual review loans ");
+            System.out.println("3 => pay credit");
+            System.out.println("0 => Go back");
             choice = scanner.nextInt();
             new LoanController(choice);
         }while (choice != 0);
